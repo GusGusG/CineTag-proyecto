@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Banco de Pruebas: CineTag</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .card { 
+            background: white; 
+            border: 1px solid #ddd; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .success { color: green; font-weight: bold; background: #e8f5e9; padding: 10px; border-radius: 4px; }
+        .error { color: red; font-weight: bold; background: #ffebee; padding: 10px; border-radius: 4px; }
+        img { max-width: 200px; display: block; margin-top: 15px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        button { 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover { background: #0056b3; }
+        input[type="file"] { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>🛠️ Verificación de APIs - CineTag</h1>
+
+    <div class="card">
+        <h2>1. Prueba TMDB (Películas)</h2>
+        <p>Intentaremos traer las películas populares de hoy.</p>
+        <button onclick="probarTMDB()">Invocando a TMDB...</button>
+        <div id="resultado-tmdb"></div>
+    </div>
+
+    <div class="card">
+        <h2>2. Prueba Cloudinary (Subida de Imágenes)</h2>
+        <p>Selecciona una imagen cualquiera de tu PC.</p>
+        <input type="file" id="imagen-input">
+        <br><br>
+        <button onclick="probarCloudinary()">Subir a la Nube</button>
+        <div id="resultado-cloudinary"></div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚠️ TUS DATOS (Ya están puestos según tus capturas)
+        // ==========================================
+        const TMDB_API_KEY = '9345f334de6b9eee8f30da7e9f55810e'; 
+        
+        const CLOUDINARY_CLOUD_NAME = 'dixzbsady'; 
+        const CLOUDINARY_PRESET = 'cinetag_preset';
+        // ==========================================
+
+        // --- Lógica para TMDB ---
+        async function probarTMDB() {
+            const div = document.getElementById('resultado-tmdb');
+            div.innerHTML = "Cargando...";
+            
+            try {
+                const url = `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_API_KEY}&language=es-MX&page=1`;
+                
+                const respuesta = await fetch(url);
+                const datos = await respuesta.json();
+
+                if (datos.results) {
+                    const peli = datos.results[0];
+                    div.innerHTML = `
+                        <div class="success">✅ ¡Éxito! Conexión establecida.</div>
+                        <p><strong>Película Top 1:</strong> ${peli.title}</p>
+                        <p><strong>Resumen:</strong> ${peli.overview}</p>
+                        <img src="https://image.tmdb.org/t/p/w500${peli.poster_path}" alt="Poster">
+                    `;
+                } else {
+                    div.innerHTML = `<div class="error">❌ Error TMDB: ${datos.status_message}</div>`;
+                }
+            } catch (error) {
+                div.innerHTML = `<div class="error">❌ Error de red: ${error}</div>`;
+            }
+        }
+
+        // --- Lógica para Cloudinary ---
+        async function probarCloudinary() {
+            const div = document.getElementById('resultado-cloudinary');
+            const input = document.getElementById('imagen-input');
+            const archivo = input.files[0];
+
+            if (!archivo) {
+                alert("Selecciona un archivo primero");
+                return;
+            }
+
+            div.innerHTML = "Subiendo imagen (espera un momento)...";
+
+            // 1. Preparamos el paquete de datos
+            const formData = new FormData();
+            
+            // IMPORTANTE: Enviamos PRIMERO el preset (el permiso) y LUEGO el archivo
+            // Esto ayuda a que el servidor valide el permiso antes de recibir el archivo pesado
+            formData.append('upload_preset', CLOUDINARY_PRESET); 
+            formData.append('file', archivo);
+
+            try {
+                // Construimos la URL dinámica
+                const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+                
+                console.log("Intentando subir a:", url);
+
+                const respuesta = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const datos = await respuesta.json();
+                console.log("Respuesta del servidor:", datos);
+
+                if (respuesta.ok) {
+                    div.innerHTML = `
+                        <div class="success">✅ ¡Éxito! Imagen guardada en la nube.</div>
+                        <p>URL Pública: <a href="${datos.secure_url}" target="_blank">${datos.secure_url}</a></p>
+                        <img src="${datos.secure_url}" alt="Imagen subida">
+                    `;
+                } else {
+                    // Si falla, mostramos el error exacto
+                    div.innerHTML = `<div class="error">❌ Error Cloudinary (${respuesta.status}): ${datos.error.message}</div>`;
+                }
+
+            } catch (error) {
+                console.error(error);
+                div.innerHTML = `<div class="error">❌ Error de red: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
