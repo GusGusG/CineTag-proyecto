@@ -1,0 +1,99 @@
+/* css/style.css */
+
+/* 1. ESTILOS GENERALES (Fondo oscuro tipo cine) */
+body {
+    background-color: #141414 !important; /* Negro Netflix */
+    color: #e5e5e5;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+}
+
+/* 2. MEJORA DE VISIBILIDAD DE TEXTOS */
+/* Esto arregla que el texto "Tu colección..." se vea bien */
+.text-muted {
+    color: #b3b3b3 !important; /* Gris claro */
+}
+
+h1, h2, h3 {
+    letter-spacing: -1px;
+}
+
+/* 3. ANIMACIONES */
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. TARJETA DE LOGIN */
+#login-view .card {
+    background: rgba(0, 0, 0, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+
+#login-view .form-control {
+    background-color: #333 !important;
+    border: none;
+    color: white !important; /* Color del texto que tú escribes */
+    padding: 12px;
+}
+
+/* --- 4.1 CORRECCIÓN DE PLACEHOLDERS (Aquí está el arreglo) --- */
+/* Esto obliga al texto de ejemplo (gris) a ser más claro */
+#login-view .form-control::placeholder {
+    color: #a0a0a0 !important; /* Un gris mucho más claro */
+    opacity: 1; /* Para que Firefox no lo haga transparente */
+}
+
+#login-view .form-control:focus {
+    background-color: #444 !important;
+    box-shadow: none;
+    border-bottom: 2px solid #e50914; /* Rojo al escribir */
+}
+
+/* 5. TARJETAS DE PELÍCULAS */
+.movie-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    background-color: #2f2f2f;
+    overflow: hidden;
+    position: relative;
+}
+
+.movie-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    z-index: 10;
+}
+
+.movie-card img {
+    height: 350px;
+    object-fit: cover;
+}
+
+/* 6. BARRA DE NAVEGACIÓN */
+.navbar {
+    background-color: rgba(20, 20, 20, 0.95) !important;
+    backdrop-filter: blur(10px);
+}
+
+.navbar-brand i {
+    color: #e50914;
+}
+
+/* 7. BOTONES */
+.btn-warning {
+    background-color: #e50914;
+    border: none;
+    color: white;
+}
+
+.btn-warning:hover {
+    background-color: #f40612;
+    color: white;
+}
