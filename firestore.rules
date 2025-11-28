@@ -1,19 +1,45 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2025, 12, 21);
+    match /resenas/{document=**} {
+      // Cualquiera puede leer las reseñas
+      allow read: if true;
+      // Solo usuarios logueados pueden crear nuevas reseñas
+      allow create: if request.auth != null;
+      // Solo el dueño de la reseña puede editarla o borrarla (Opcional avanzado)
+      allow update, delete: if request.auth != null && request.auth.token.email == resource.data.usuario;
     }
   }
+}
+```
+*Nota: Después de cambiar esto, debes hacer `firebase deploy --only firestore:rules` desde tu terminal local si quieres que se aplique en la nube real, o copiar y pegarlo en la Consola de Firebase -> Firestore -> Reglas.*
+
+#### B. Mejorar la Experiencia de Usuario (UI)
+En `index.html`, agrega este pequeño contenedor para notificaciones justo antes de cerrar el `</body>`.
+
+```html
+<!-- Toast Container para notificaciones elegantes -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="liveToast" class="toast bg-dark text-white border-white" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header bg-secondary text-white">
+      <strong class="me-auto">CineTag</strong>
+      <small>Ahora</small>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body" id="toast-message">
+      Mensaje del sistema.
+    </div>
+  </div>
+</div>
+```
+
+Y en `js/ui.js` o `js/app.js`, puedes crear una función pequeña para usar esto en lugar de `alert`:
+
+```javascript
+function mostrarNotificacion(mensaje) {
+    const toastEl = document.getElementById('liveToast');
+    const toastBody = document.getElementById('toast-message');
+    toastBody.textContent = mensaje;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
 }

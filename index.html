@@ -1,50 +1,57 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineTag - Tu Diario de Películas</title>
 
-    <!-- 1. Estilos Externos (Bootstrap y FontAwesome) -->
-    <!-- Bootstrap para diseño rápido y responsivo -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome para los iconos -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <!-- 2. Nuestros Estilos Propios -->
+    <!-- Estilos Propios -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body class="bg-dark text-white">
 
-    <!-- =========================================
-         BARRA DE NAVEGACIÓN (Navbar)
-         Se oculta con la clase 'd-none' hasta que el usuario inicie sesión
-    ========================================== -->
+    <!-- BARRA DE NAVEGACIÓN -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-black border-bottom border-secondary d-none" id="main-navbar">
         <div class="container">
             <a class="navbar-brand text-warning fw-bold" href="#">
                 <i class="fas fa-film"></i> CineTag
             </a>
 
-            <!-- Menú derecho -->
-            <div class="d-flex align-items-center">
-                <!-- Aquí mostraremos el correo del usuario -->
-                <span id="user-email" class="me-3 text-secondary small"></span>
-                <!-- Botón de Salir -->
+            <!-- SECCIÓN DE USUARIO (Derecha) -->
+            <div class="d-flex align-items-center gap-3">
+
+                <!-- FOTO DE PERFIL (Clic para cambiar) -->
+                <div class="position-relative" style="cursor: pointer;"
+                    onclick="document.getElementById('input-avatar').click()" title="Cambiar foto">
+                    <!-- Imagen circular -->
+                    <img id="user-avatar" src="https://via.placeholder.com/40"
+                        class="rounded-circle border border-warning" width="40" height="40" alt="Perfil"
+                        style="object-fit: cover;">
+                    <!-- Input invisible -->
+                    <input type="file" id="input-avatar" accept="image/*" style="display: none;">
+                </div>
+
+                <!-- Correo del usuario -->
+                <span id="user-email" class="text-secondary small d-none d-md-block"></span>
+
+                <!-- Botón Salir -->
                 <button class="btn btn-outline-danger btn-sm" id="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Salir
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- =========================================
-         CONTENEDOR PRINCIPAL
-         Aquí cambian las "Vistas" dinámicamente
-    ========================================== -->
+    <!-- CONTENEDOR PRINCIPAL -->
     <div class="container mt-5" id="app-container">
 
-        <!-- VISTA 1: LOGIN (Se muestra por defecto) -->
+        <!-- VISTA LOGIN -->
         <div id="login-view" class="row justify-content-center fade-in">
             <div class="col-md-6 col-lg-4">
                 <div class="card bg-secondary text-white border-0 shadow-lg" style="--bs-bg-opacity: .2;">
@@ -52,59 +59,58 @@
                         <h1 class="mb-4 fw-bold"><i class="fas fa-ticket-alt text-warning"></i> CineTag</h1>
                         <p class="text-muted mb-4">Tu colección de cine y series.</p>
 
-                        <!-- Botón de Google -->
-                        <button class="btn btn-light w-100 mb-3 d-flex align-items-center justify-content-center gap-2" id="btn-google">
-                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G">
+                        <button class="btn btn-light w-100 mb-3 d-flex align-items-center justify-content-center gap-2"
+                            id="btn-google">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"
+                                alt="G">
                             Continuar con Google
                         </button>
 
                         <div class="text-muted my-3 small">- O usa tu correo -</div>
 
-                        <!-- Formulario de Correo -->
                         <form id="form-login">
                             <div class="mb-3 text-start">
                                 <label class="form-label small">Correo Electrónico</label>
-                                <input type="email" id="email" class="form-control bg-dark text-white border-secondary" placeholder="nombre@ejemplo.com" required>
+                                <input type="email" id="email" class="form-control bg-dark text-white border-secondary"
+                                    placeholder="nombre@ejemplo.com" required>
                             </div>
                             <div class="mb-3 text-start">
                                 <label class="form-label small">Contraseña</label>
-                                <input type="password" id="password" class="form-control bg-dark text-white border-secondary" placeholder="******" required>
+                                <input type="password" id="password"
+                                    class="form-control bg-dark text-white border-secondary" placeholder="******"
+                                    required>
                             </div>
-                            <button type="submit" class="btn btn-warning w-100 fw-bold">Iniciar Sesión / Registrarse</button>
+                            <button type="submit" class="btn btn-warning w-100 fw-bold">Iniciar Sesión /
+                                Registrarse</button>
                         </form>
 
-                        <!-- Mensaje de error (se llena con JS) -->
                         <div id="login-error" class="mt-3 text-danger small fw-bold"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VISTA 2: MURO DE PELÍCULAS (Se oculta al inicio con 'd-none') -->
+        <!-- VISTA MURO -->
         <div id="wall-view" class="d-none fade-in">
             <div class="text-center mb-5">
                 <h2>🎬 Películas Populares</h2>
                 <p class="text-muted">Las tendencias de hoy en CineTag.</p>
             </div>
 
-            <!-- AQUÍ EL INTEGRANTE B PINTARÁ LAS PELÍCULAS -->
             <div id="peliculas-container" class="row">
-                <!-- Ejemplo de cómo se verá una tarjeta (Placeholder) -->
                 <div class="text-center text-muted py-5">
                     <div class="spinner-border text-warning" role="status"></div>
-                    <p class="mt-2">Esperando al Integrante B para cargar películas...</p>
+                    <p class="mt-2">Cargando...</p>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- 3. Scripts del Proyecto -->
-    <!-- Bootstrap Bundle (necesario para componentes visuales) -->
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- NUESTRO CEREBRO: type="module" es vital para usar imports -->
     <script type="module" src="js/app.js"></script>
 
 </body>
+
 </html>
